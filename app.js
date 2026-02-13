@@ -170,7 +170,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         T: ${item.taille}hL + ${item.bouesTaille}B = <strong>${item.totalTaille}hL</strong> (S:${item.bisulTaille}ml E:${item.enzTaille}ml)
                     </div>
                 </div>
+                <button class="btn-item-delete" data-id="${item.id}" title="Supprimer cet enregistrement">🗑️</button>
             </div>
         `).join('');
+
+        // Handle individual deletion
+        const itemDeleteButtons = historyList.querySelectorAll('.btn-item-delete');
+        itemDeleteButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.getAttribute('data-id'));
+                if (confirm('Supprimer cet enregistrement ?')) {
+                    history = history.filter(item => item.id !== id);
+                    localStorage.setItem('pressing_history', JSON.stringify(history));
+                    updateHistory();
+                }
+            });
+        });
     }
 });

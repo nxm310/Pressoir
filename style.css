@@ -269,12 +269,32 @@ input:focus {
 .history-item {
     display: flex;
     justify-content: space-between;
-    padding: 1rem 0;
+    align-items: center;
+    padding: 1.25rem 0;
     border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
 }
 
 .history-item:last-child {
     border-bottom: none;
+}
+
+.btn-item-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 8px;
+    border-radius: 8px;
+    transition: var(--transition);
+    opacity: 0.5;
+}
+
+.btn-item-delete:hover {
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
+    opacity: 1;
 }
 
 .history-date {
