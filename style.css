@@ -105,19 +105,20 @@ h1 {
 }
 
 .star {
-    color: var(--card-bg);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);
     transition: var(--transition);
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 .star:hover,
 .star.active {
     color: var(--gold);
+    -webkit-text-stroke: 1px var(--gold);
     transform: scale(1.1);
 }
 
 .star.active {
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
 }
 
 .input-group {
