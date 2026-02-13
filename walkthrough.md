@@ -15,8 +15,10 @@ The application for managing 4000kg champagne pressings is now ready. It feature
         - **Bisulfite** : 1250 ml (Cuvée) / 450 ml (Taille) par marc de 4000 kg.
         - **Enzymes** : 400 ml (Cuvée) / 100 ml (Taille) par marc de 4000 kg.
     - Ces doses s'adaptent dynamiquement si vous changez le poids du raisin.
+- **Notation de Qualité** : Système de 1 à 5 étoiles pour évaluer la qualité du raisin à chaque chargement.
+- **Cépages Purifiés** : Sélection rapide parmi les 3 cépages principaux (Chardonnay, Pinot Noir, Pinot Meunier).
 - **Historique Enrichi & Gestion** : 
-    - Enregistrement incluant le poids, les rendements totaux et les doses d'additifs (S = Sulfitage, E = Enzymes).
+    - Enregistrement incluant le poids, les rendements totaux, les doses d'additifs et la **note de qualité (étoiles)**.
     - Bouton **"Vider l'Historique"** avec confirmation pour une gestion simplifiée.
 - **Optimisation Mobile** : Interface affinée pour une lecture et une utilisation confortables sur iPhone.
 

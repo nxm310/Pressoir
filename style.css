@@ -32,7 +32,7 @@ body {
 
 .container {
     width: 100%;
-    max-width: 600px;
+    max-width: 1000px;
     animation: fadeIn 0.8s ease-out;
 }
 
@@ -50,12 +50,12 @@ body {
 
 header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
 }
 
 h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     color: var(--gold);
     letter-spacing: 1px;
     margin-bottom: 0.5rem;
@@ -69,14 +69,21 @@ h1 {
     letter-spacing: 2px;
 }
 
+/* Base Layout (Mobile) */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
 .card {
     background: var(--card-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem;
+    height: fit-content;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
@@ -88,6 +95,29 @@ h1 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.star {
+    color: var(--card-bg);
+    transition: var(--transition);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.star:hover,
+.star.active {
+    color: var(--gold);
+    transform: scale(1.1);
+}
+
+.star.active {
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
 }
 
 .input-group {

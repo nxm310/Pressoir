@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyList = document.getElementById('history-list');
     const weightInput = document.getElementById('weight');
     const noteInput = document.getElementById('note');
+    const starRating = document.getElementById('star-rating');
+    const stars = document.querySelectorAll('.star');
 
     const valCuvee = document.getElementById('val-cuvee');
     const valBouesCuvee = document.getElementById('val-boues-cuvee');
@@ -19,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const valEnzTaille = document.getElementById('val-enz-taille');
 
     let selectedVariety = 'Chardonnay';
+    let currentRating = 0;
     let history = JSON.parse(localStorage.getItem('pressing_history')) || [];
 
     // Standard ratios for 4000kg
@@ -35,6 +38,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize UI
     updateHistory();
     calculateYields();
+
+    // Star Rating Logic
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            currentRating = parseInt(star.getAttribute('data-value'));
+            updateStars();
+        });
+    });
+
+    function updateStars() {
+        stars.forEach(star => {
+            const val = parseInt(star.getAttribute('data-value'));
+            if (val <= currentRating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
 
     // Event Listeners
     weightInput.addEventListener('input', calculateYields);
@@ -83,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             date: new Date().toLocaleString('fr-FR'),
             weight: weight,
             variety: selectedVariety,
+            rating: currentRating,
             note: noteInput.value || 'N/A',
             cuvee: cuvee.toFixed(2),
             taille: taille.toFixed(2),
@@ -101,6 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset and provide feedback
         noteInput.value = '';
+        currentRating = 0;
+        updateStars();
         updateHistory();
 
         // Visual feedback
@@ -135,7 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="history-item">
                 <div class="history-date">
                     ${item.date}<br>
-                    <span style="color: var(--gold); font-size: 0.8rem;">${item.note}</span>
+                    <span style="color: var(--gold); font-size: 0.8rem;">${'★'.repeat(item.rating)}${'☆'.repeat(5 - item.rating)}</span><br>
+                    <span style="color: var(--text-secondary); font-size: 0.8rem;">${item.note}</span>
                 </div>
                 <div class="history-info">
                     <div class="history-variety">${item.variety} (${item.weight} kg)</div>
