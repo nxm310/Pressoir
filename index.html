@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pressoir 4000 - Champagne</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="subtitle">Gestion de Vendange</div>
+            <h1>Pressoir 4000kg</h1>
+        </header>
+
+        <main>
+            <section class="card">
+                <div class="section-title">
+                    <span>🍇</span> Chargement du Marc
+                </div>
+
+                <div class="input-group">
+                    <label>Poids du Raisin (kg)</label>
+                    <input type="number" id="weight" value="4000" step="50" min="0">
+                </div>
+
+                <label>Cépages</label>
+                <div class="variety-grid" id="variety-grid">
+                    <button class="btn-variety active" data-variety="Chardonnay">Chardonnay</button>
+                    <button class="btn-variety" data-variety="Pinot Noir">Pinot Noir</button>
+                    <button class="btn-variety" data-variety="Pinot Meunier">Pinot Meunier</button>
+                    <button class="btn-variety" data-variety="Mélange">Mélange</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Nom de la Parcelle / Note</label>
+                    <input type="text" id="note" placeholder="Optionnel: Morgon, Verzenay...">
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="section-title">
+                    <span>🍷</span> Rendement Estimé (hL)
+                </div>
+
+                <div class="results">
+                    <div class="result-item cuvee">
+                        <div class="result-label">Cuvée</div>
+                        <div>
+                            <span class="result-value" id="val-cuvee">20.50</span>
+                            <span class="result-unit">hL</span>
+                        </div>
+                    </div>
+                    <div class="result-item cuvee">
+                        <div class="result-label">Boues Cuvée (+4%)</div>
+                        <div>
+                            <span class="result-value" id="val-boues-cuvee">0.82</span>
+                            <span class="result-unit">hL</span>
+                        </div>
+                    </div>
+                    <div class="result-item cuvee" style="border-left-color: #5d3fd3;">
+                        <div class="result-label">Bisulfite Cuvée</div>
+                        <div>
+                            <span class="result-value" id="val-bisul-cuvee">1250</span>
+                            <span class="result-unit">ml</span>
+                        </div>
+                    </div>
+                    <div class="result-item cuvee" style="border-left-color: #2e8b57;">
+                        <div class="result-label">Enzymes Cuvée</div>
+                        <div>
+                            <span class="result-value" id="val-enz-cuvee">400</span>
+                            <span class="result-unit">ml</span>
+                        </div>
+                    </div>
+
+                    <div class="result-item cuvee"
+                        style="border-left-color: var(--text-primary); background: rgba(255, 255, 255, 0.05);">
+                        <div class="result-label" style="color: var(--text-primary); font-weight: 600;">TOTAL CUVÉE
+                            (+Boues)</div>
+                        <div>
+                            <span class="result-value" id="val-total-cuvee"
+                                style="color: var(--gold-bright);">21.32</span>
+                            <span class="result-unit">hL</span>
+                        </div>
+                    </div>
+
+                    <div class="separator-line"></div>
+
+                    <div class="result-item taille">
+                        <div class="result-label">Taille</div>
+                        <div>
+                            <span class="result-value" id="val-taille">5.00</span>
+                            <span class="result-unit">hL</span>
+                        </div>
+                    </div>
+                    <div class="result-item taille">
+                        <div class="result-label">Boues Taille (+4%)</div>
+                        <div>
+                            <span class="result-value" id="val-boues-taille">0.20</span>
+                            <span class="result-unit">hL</span>
+                        </div>
+                    </div>
+                    <div class="result-item taille" style="border-left-color: #5d3fd3;">
+                        <div class="result-label">Bisulfite Taille</div>
+                        <div>
+                            <span class="result-value" id="val-bisul-taille">450</span>
+                            <span class="result-unit">ml</span>
+                        </div>
+                    </div>
+                    <div class="result-item taille" style="border-left-color: #2e8b57;">
+                        <div class="result-label">Enzymes Taille</div>
+                        <div>
+                            <span class="result-value" id="val-enz-taille">100</span>
+                            <span class="result-unit">ml</span>
+                        </div>
+                    </div>
+                    <div class="result-item taille"
+                        style="border-left-color: var(--text-primary); background: rgba(255, 255, 255, 0.05);">
+                        <div class="result-label" style="color: var(--text-primary); font-weight: 600;">TOTAL TAILLE
+                            (+Boues)</div>
+                        <div>
+                            <span class="result-value" id="val-total-taille"
+                                style="color: var(--gold-bright);">5.20</span>
+                            <span class="result-unit">hL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-save" id="btn-save">Enregistrer ce Pressurage</button>
+            </section>
+
+            <section class="card">
+                <div class="section-title">
+                    <span>🕒</span> Historique des Pressurages
+                </div>
+                <div id="history-list">
+                    <!-- Javascript will populate this -->
+                </div>
+                <button class="btn-delete" id="btn-clear-history" style="display: none;">Vider l'Historique</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
