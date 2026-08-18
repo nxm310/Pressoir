@@ -10,11 +10,14 @@ The application for managing 4000kg champagne pressings is now ready. It feature
     - **Taille**: Scaled proportionally (0.00125 hL/kg).
     - **Boues**: 4% addition calculated for both fractions.
 - **Volumes Totaux** : Affichage clair du volume de jus + volume des boues pour chaque fraction.
-- **Bisulfite & Enzymes** :
-    - Calcul automatique basé sur vos proportions : 
-        - **Bisulfite** : 1250 ml (Cuvée) / 450 ml (Taille) par marc de 4000 kg.
-        - **Enzymes** : 400 ml (Cuvée) / 100 ml (Taille) par marc de 4000 kg.
-    - Ces doses s'adaptent dynamiquement si vous changez le poids du raisin.
+- **Pigeage des Cuves (Barèmes officiels de Soissons)** :
+    - **Cuve N°3 (Cuvée)** : Calcul automatique et précis en centimètres (cm) de la hauteur de pige pour le Total Cuvée (+Boues).
+    - **Cuve N°6 (Taille)** : Calcul automatique et précis en centimètres (cm) de la hauteur de pige pour le Total Taille (+Boues).
+- **Bisulfite & Enzymes Personnalisables** :
+    - Saisie directe des doses (ml) pour chaque marc dans la section **Chargement du Marc**, séparément pour la **Cuvée** et la **Taille**.
+    - Calcul automatique et proportionnel au poids par défaut (Base 4000 kg : 1250 ml Bisul / 400 ml Enz pour Cuvée, 350 ml Bisul / 100 ml Enz pour Taille).
+    - Bouton rapide **"Rétablir standard"** pour réinitialiser aux proportions de référence.
+    - Enregistrement des doses exactes dans l'historique de chaque pressurage.
 - **Notation de Qualité** : Système de 1 à 5 étoiles pour évaluer la qualité du raisin à chaque chargement.
 - **Cépages Purifiés** : Sélection rapide parmi les 3 cépages principaux (Chardonnay, Pinot Noir, Pinot Meunier).
 - **Historique Enrichi & Gestion** : 

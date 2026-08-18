@@ -35,6 +35,42 @@
                         <button class="btn-variety" data-variety="Pinot Meunier">Pinot Meunier</button>
                     </div>
 
+                    <!-- Variables Additifs (Cuvée & Taille) -->
+                    <div class="additives-container" style="margin-bottom: 1.5rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span style="font-size: 0.9rem; font-weight: 600; color: var(--gold-bright);">🧪 Doses Additifs (ml)</span>
+                            <button type="button" id="btn-reset-doses" style="background: none; border: none; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 0;">Rétablir standard</button>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <!-- Cuvée -->
+                            <div style="background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 10px; padding: 0.75rem;">
+                                <div style="font-size: 0.8rem; font-weight: 600; color: var(--gold); margin-bottom: 0.5rem; text-align: center;">CUVÉE</div>
+                                <div style="margin-bottom: 0.5rem;">
+                                    <label for="input-bisul-cuvee" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Bisulfite (ml)</label>
+                                    <input type="number" id="input-bisul-cuvee" value="1250" step="10" style="padding: 8px 10px; font-size: 0.9rem;">
+                                </div>
+                                <div>
+                                    <label for="input-enz-cuvee" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Enzymes (ml)</label>
+                                    <input type="number" id="input-enz-cuvee" value="400" step="10" style="padding: 8px 10px; font-size: 0.9rem;">
+                                </div>
+                            </div>
+
+                            <!-- Taille -->
+                            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 0.75rem;">
+                                <div style="font-size: 0.8rem; font-weight: 600; color: #a0a0a0; margin-bottom: 0.5rem; text-align: center;">TAILLE</div>
+                                <div style="margin-bottom: 0.5rem;">
+                                    <label for="input-bisul-taille" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Bisulfite (ml)</label>
+                                    <input type="number" id="input-bisul-taille" value="350" step="10" style="padding: 8px 10px; font-size: 0.9rem;">
+                                </div>
+                                <div>
+                                    <label for="input-enz-taille" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Enzymes (ml)</label>
+                                    <input type="number" id="input-enz-taille" value="100" step="10" style="padding: 8px 10px; font-size: 0.9rem;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="input-group">
                         <label>Qualité du Raisin</label>
                         <div class="star-rating" id="star-rating">
@@ -100,6 +136,23 @@
                             </div>
                         </div>
 
+                        <div class="result-item pige-item"
+                            style="border-left-color: var(--gold); background: rgba(212, 175, 55, 0.08);">
+                            <div>
+                                <div class="result-label" style="color: var(--gold); font-weight: 700; font-size: 0.95rem;">
+                                    📏 Hauteur Pige (Cuve N°3)
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">
+                                    Jaugeage Cuvée
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="result-value" id="val-pige-cuvee"
+                                    style="color: var(--gold-bright); font-size: 1.4rem; font-weight: 700;">62.6</span>
+                                <span class="result-unit" style="color: var(--gold-bright); font-weight: 600;">cm</span>
+                            </div>
+                        </div>
+
                         <div class="separator-line"></div>
 
                         <div class="result-item taille">
@@ -119,7 +172,7 @@
                         <div class="result-item taille" style="border-left-color: #5d3fd3;">
                             <div class="result-label">Bisulfite Taille</div>
                             <div>
-                                <span class="result-value" id="val-bisul-taille">450</span>
+                                <span class="result-value" id="val-bisul-taille">350</span>
                                 <span class="result-unit">ml</span>
                             </div>
                         </div>
@@ -138,6 +191,23 @@
                                 <span class="result-value" id="val-total-taille"
                                     style="color: var(--gold-bright);">5.20</span>
                                 <span class="result-unit">hL</span>
+                            </div>
+                        </div>
+
+                        <div class="result-item pige-item"
+                            style="border-left-color: #f1c40f; background: rgba(241, 196, 15, 0.08);">
+                            <div>
+                                <div class="result-label" style="color: #f39c12; font-weight: 700; font-size: 0.95rem;">
+                                    📏 Hauteur Pige (Cuve N°6)
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">
+                                    Jaugeage Taille
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="result-value" id="val-pige-taille"
+                                    style="color: #f1c40f; font-size: 1.4rem; font-weight: 700;">45.8</span>
+                                <span class="result-unit" style="color: #f1c40f; font-weight: 600;">cm</span>
                             </div>
                         </div>
                     </div>
