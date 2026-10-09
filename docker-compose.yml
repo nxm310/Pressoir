@@ -5,6 +5,10 @@ services:
     restart: unless-stopped
     ports:
       - "8084:80"
+    environment:
+      - PORT=80
+    volumes:
+      - ./data:/app/data
     labels:
       - "gethomepage.name=Pressoir 4000"
       - "gethomepage.description=Gestion de vendange & pressurage Champagne"

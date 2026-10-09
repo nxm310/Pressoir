@@ -33,6 +33,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let userCustomizedDoses = false;
     let history = JSON.parse(localStorage.getItem('pressing_history')) || [];
 
+    function syncServer(newHistory) {
+        fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ history: newHistory })
+        }).catch(err => console.warn('Sync offline', err));
+    }
+
+    // Chargement initial depuis le Mac Mini M1
+    fetch('/api/data')
+        .then(res => res.json())
+        .then(data => {
+            if (data && Array.isArray(data.history)) {
+                history = data.history;
+                localStorage.setItem('pressing_history', JSON.stringify(history));
+                updateHistory();
+            } else if (history.length > 0) {
+                syncServer(history);
+            }
+        })
+        .catch(() => {});
+
     // Standard ratios for 4000kg
     const CUVEE_RATIO = 20.5 / 4000;
     const TAILLE_RATIO = 5.0 / 4000;
@@ -287,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         history.unshift(entry);
         localStorage.setItem('pressing_history', JSON.stringify(history));
+        syncServer(history);
 
         // Reset and provide feedback
         noteInput.value = '';
@@ -313,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Voulez-vous vraiment supprimer tout l\'historique ? Cette action est irréversible.')) {
             history = [];
             localStorage.removeItem('pressing_history');
+            syncServer([]);
             updateHistory();
         }
     });
@@ -336,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="history-variety">${item.variety} (${item.weight} kg)</div>
                     <div style="font-size: 0.8rem; color: var(--text-secondary);">
                         C: ${item.cuvee}hL + ${item.bouesCuvee}B = <strong>${item.totalCuvee}hL</strong> 
-                        ${item.pigeCuvee ? `<span style="color: var(--gold-bright); font-weight: 600;">(📏 Cuve 3 : ${item.pigeCuvee} cm)</span>` : ''}
+                        ${item.pigeCuvee ? `<span style="color: var(--gold-bright); font-weight: 600;">(📏 Cuve 3 : ${item.pigeCuvee} cm)</span>` : ''} 
                         (S:${item.bisulCuvee}ml E:${item.enzCuvee}ml)<br>
                         T: ${item.taille}hL + ${item.bouesTaille}B = <strong>${item.totalTaille}hL</strong> 
                         ${item.pigeTaille ? `<span style="color: #f1c40f; font-weight: 600;">(📏 Cuve 6 : ${item.pigeTaille} cm)</span>` : ''} 
@@ -355,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (confirm('Supprimer cet enregistrement ?')) {
                     history = history.filter(item => item.id !== id);
                     localStorage.setItem('pressing_history', JSON.stringify(history));
+                    syncServer(history);
                     updateHistory();
                 }
             });
