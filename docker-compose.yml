@@ -1,0 +1,14 @@
+services:
+  pressoir:
+    build: .
+    container_name: pressoir
+    restart: unless-stopped
+    ports:
+      - "8084:80"
+    labels:
+      - "gethomepage.name=Pressoir 4000"
+      - "gethomepage.description=Gestion de vendange & pressurage Champagne"
+      - "gethomepage.group=Exploitation & Parcelles"
+      - "gethomepage.icon=http://192.168.50.174:8084/pressoir-logo.svg"
+      - "gethomepage.href=http://192.168.50.174:8084"
+      - "gethomepage.ping=http://192.168.50.174:8084"
