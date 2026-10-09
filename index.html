@@ -216,16 +216,49 @@
 
             <!-- Section 3: History (Full Width) -->
             <section class="card">
-                <div class="section-title">
-                    <span>🕒</span> Historique des Pressurages
+                <div class="history-header">
+                    <div class="section-title" style="margin-bottom: 0;">
+                        <span>🕒</span> Historique des Pressurages
+                    </div>
+                    <div class="history-actions">
+                        <button type="button" class="btn-action" id="btn-export-json" title="Télécharger une sauvegarde complète JSON">
+                            💾 Export JSON
+                        </button>
+                        <button type="button" class="btn-action" id="btn-export-csv" title="Exporter les données au format tableur CSV / Excel">
+                            📊 Export CSV
+                        </button>
+                        <button type="button" class="btn-action" id="btn-import-trigger" title="Importer des pressurages (JSON ou CSV)">
+                            📥 Importer
+                        </button>
+                        <input type="file" id="file-import-pressoir" accept=".json,.csv" style="display: none;">
+                    </div>
                 </div>
-                <div id="history-list">
+
+                <div id="history-list" style="margin-top: 1rem;">
                     <!-- Javascript will populate this -->
                 </div>
                 <button class="btn-delete" id="btn-clear-history" style="display: none;">Vider l'Historique</button>
             </section>
         </main>
     </div>
+
+    <!-- Dialog Import Modal -->
+    <dialog id="pressoir-import-dialog" class="pressoir-dialog">
+        <div class="dialog-content">
+            <h3 class="dialog-title">📥 Importer des Pressurages</h3>
+            <p id="pressoir-import-summary" class="dialog-text">Analyse du fichier terminée.</p>
+            <div id="pressoir-import-details" class="dialog-details"></div>
+            <p class="dialog-subtitle">Choisissez l'action à effectuer :</p>
+            <div class="dialog-buttons">
+                <button type="button" id="btn-import-cancel" class="btn-dialog-cancel">Annuler</button>
+                <button type="button" id="btn-import-merge" class="btn-dialog-merge">🔄 Fusionner</button>
+                <button type="button" id="btn-import-replace" class="btn-dialog-replace">⚠️ Remplacer tout</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
 
     <script src="app.js"></script>
 </body>

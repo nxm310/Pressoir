@@ -338,8 +338,305 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('pressing_history');
             syncServer([]);
             updateHistory();
+            showToast('Historique vidé', 'warn');
         }
     });
+
+    // ── TOAST NOTIFICATION ──
+    function showToast(msg, type = 'info') {
+        const el = document.getElementById('toast');
+        if (!el) return;
+        el.innerHTML = `
+            <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warn' ? '⚠️' : 'ℹ️'}</span>
+            <span>${msg}</span>
+        `;
+        el.className = `toast ${type} show`;
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ── DOWNLOAD & CSV HELPERS ──
+    function downloadFile(content, filename, mimeType = 'text/plain;charset=utf-8;') {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    function escapeCsvField(val) {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+    }
+
+    // ── EXPORT FUNCTIONS ──
+    function exportJSON() {
+        if (!history || history.length === 0) {
+            showToast('Aucun pressurage à exporter dans l\'historique', 'warn');
+            return;
+        }
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const payload = {
+            app: "Pressoir 4000kg",
+            version: "1.0",
+            exportedAt: new Date().toISOString(),
+            count: history.length,
+            history: history
+        };
+        downloadFile(JSON.stringify(payload, null, 2), `Pressoir_Sauvegarde_${dateStr}.json`, 'application/json;charset=utf-8;');
+        showToast('💾 Sauvegarde JSON exportée avec succès !', 'success');
+    }
+
+    function exportCSV() {
+        if (!history || history.length === 0) {
+            showToast('Aucun pressurage à exporter dans l\'historique', 'warn');
+            return;
+        }
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const headers = [
+            'Date', 'Cépage', 'Poids_kg', 'Note_Parcelle', 'Qualite_Etoiles',
+            'Cuvee_hL', 'Boues_Cuvee_hL', 'Total_Cuvee_hL', 'Pige_Cuve_3_cm', 'Bisulfite_Cuvee_ml', 'Enzymes_Cuvee_ml',
+            'Taille_hL', 'Boues_Taille_hL', 'Total_Taille_hL', 'Pige_Cuve_6_cm', 'Bisulfite_Taille_ml', 'Enzymes_Taille_ml'
+        ];
+        const rows = history.map(item => [
+            escapeCsvField(item.date),
+            escapeCsvField(item.variety),
+            escapeCsvField(item.weight),
+            escapeCsvField(item.note || ''),
+            escapeCsvField(item.rating || 0),
+            escapeCsvField(item.cuvee),
+            escapeCsvField(item.bouesCuvee),
+            escapeCsvField(item.totalCuvee),
+            escapeCsvField(item.pigeCuvee || ''),
+            escapeCsvField(item.bisulCuvee || 0),
+            escapeCsvField(item.enzCuvee || 0),
+            escapeCsvField(item.taille),
+            escapeCsvField(item.bouesTaille),
+            escapeCsvField(item.totalTaille),
+            escapeCsvField(item.pigeTaille || ''),
+            escapeCsvField(item.bisulTaille || 0),
+            escapeCsvField(item.enzTaille || 0)
+        ]);
+        const csvContent = "\uFEFF" + [
+            headers.join(';'),
+            ...rows.map(r => r.join(';'))
+        ].join('\r\n');
+        downloadFile(csvContent, `Pressoir_Historique_${dateStr}.csv`, 'text/csv;charset=utf-8;');
+        showToast('📊 Historique exporté en CSV pour tableur !', 'success');
+    }
+
+    // ── IMPORT LOGIC ──
+    let pendingImportHistory = null;
+
+    function parseCSVLine(text) {
+        const sep = text.includes(';') ? ';' : ',';
+        const result = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            if (c === '"') {
+                if (inQuotes && text[i+1] === '"') {
+                    cur += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c === sep && !inQuotes) {
+                result.push(cur.trim());
+                cur = '';
+            } else {
+                cur += c;
+            }
+        }
+        result.push(cur.trim());
+        return result;
+    }
+
+    function parseCSVHistory(csvText) {
+        const lines = csvText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim().length > 0);
+        if (lines.length < 2) return [];
+        const header = parseCSVLine(lines[0]).map(h => h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+        
+        const dateIdx = header.findIndex(h => h.includes('date'));
+        const varietyIdx = header.findIndex(h => h.includes('cepage') || h.includes('variety'));
+        const weightIdx = header.findIndex(h => h.includes('poids') || h.includes('weight'));
+        const noteIdx = header.findIndex(h => h.includes('note') || h.includes('parcelle'));
+        const ratingIdx = header.findIndex(h => h.includes('etoile') || h.includes('qualite') || h.includes('rating'));
+        const cuveeIdx = header.findIndex(h => h.includes('cuvee') && !h.includes('total') && !h.includes('boue') && !h.includes('pige') && !h.includes('bisul') && !h.includes('enz'));
+        const tailleIdx = header.findIndex(h => h.includes('taille') && !h.includes('total') && !h.includes('boue') && !h.includes('pige') && !h.includes('bisul') && !h.includes('enz'));
+        const bouesCuveeIdx = header.findIndex(h => h.includes('boue') && h.includes('cuvee'));
+        const bouesTailleIdx = header.findIndex(h => h.includes('boue') && h.includes('taille'));
+        const totalCuveeIdx = header.findIndex(h => h.includes('total') && h.includes('cuvee'));
+        const totalTailleIdx = header.findIndex(h => h.includes('total') && h.includes('taille'));
+        const pigeCuveeIdx = header.findIndex(h => h.includes('pige') && (h.includes('cuve') || h.includes('3')));
+        const pigeTailleIdx = header.findIndex(h => h.includes('pige') && (h.includes('taille') || h.includes('6')));
+        const bisulCuveeIdx = header.findIndex(h => h.includes('bisul') && h.includes('cuvee'));
+        const enzCuveeIdx = header.findIndex(h => h.includes('enz') && h.includes('cuvee'));
+        const bisulTailleIdx = header.findIndex(h => h.includes('bisul') && h.includes('taille'));
+        const enzTailleIdx = header.findIndex(h => h.includes('enz') && h.includes('taille'));
+
+        const items = [];
+        for (let i = 1; i < lines.length; i++) {
+            const cols = parseCSVLine(lines[i]);
+            if (!cols || cols.length === 0) continue;
+            const weight = parseFloat(cols[weightIdx >= 0 ? weightIdx : 2]) || 4000;
+            const variety = (varietyIdx >= 0 && cols[varietyIdx]) ? cols[varietyIdx] : 'Chardonnay';
+            const date = (dateIdx >= 0 && cols[dateIdx]) ? cols[dateIdx] : new Date().toLocaleString('fr-FR');
+            const note = (noteIdx >= 0 && cols[noteIdx]) ? cols[noteIdx] : '';
+            const rating = parseInt(ratingIdx >= 0 ? cols[ratingIdx] : 0, 10) || 0;
+
+            items.push({
+                id: Date.now() + i,
+                date: date,
+                weight: weight,
+                variety: variety,
+                rating: rating,
+                note: note || 'N/A',
+                cuvee: (cuveeIdx >= 0 && cols[cuveeIdx]) ? cols[cuveeIdx] : (weight * 20.5 / 4000).toFixed(2),
+                taille: (tailleIdx >= 0 && cols[tailleIdx]) ? cols[tailleIdx] : (weight * 5.0 / 4000).toFixed(2),
+                bouesCuvee: (bouesCuveeIdx >= 0 && cols[bouesCuveeIdx]) ? cols[bouesCuveeIdx] : (weight * 20.5 / 4000 * 0.04).toFixed(2),
+                bouesTaille: (bouesTailleIdx >= 0 && cols[bouesTailleIdx]) ? cols[bouesTailleIdx] : (weight * 5.0 / 4000 * 0.04).toFixed(2),
+                totalCuvee: (totalCuveeIdx >= 0 && cols[totalCuveeIdx]) ? cols[totalCuveeIdx] : (weight * 20.5 / 4000 * 1.04).toFixed(2),
+                totalTaille: (totalTailleIdx >= 0 && cols[totalTailleIdx]) ? cols[totalTailleIdx] : (weight * 5.0 / 4000 * 1.04).toFixed(2),
+                pigeCuvee: (pigeCuveeIdx >= 0 && cols[pigeCuveeIdx]) ? cols[pigeCuveeIdx] : '',
+                pigeTaille: (pigeTailleIdx >= 0 && cols[pigeTailleIdx]) ? cols[pigeTailleIdx] : '',
+                bisulCuvee: parseInt(bisulCuveeIdx >= 0 ? cols[bisulCuveeIdx] : 1250, 10) || 1250,
+                enzCuvee: parseInt(enzCuveeIdx >= 0 ? cols[enzCuveeIdx] : 400, 10) || 400,
+                bisulTaille: parseInt(bisulTailleIdx >= 0 ? cols[bisulTailleIdx] : 350, 10) || 350,
+                enzTaille: parseInt(enzTailleIdx >= 0 ? cols[enzTailleIdx] : 100, 10) || 100
+            });
+        }
+        return items;
+    }
+
+    function handleImportFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        const isJson = file.name.toLowerCase().endsWith('.json');
+        const isCsv = file.name.toLowerCase().endsWith('.csv');
+
+        if (!isJson && !isCsv) {
+            showToast('Format non supporté. Veuillez sélectionner un fichier .json ou .csv', 'error');
+            return;
+        }
+
+        reader.onload = (e) => {
+            try {
+                const text = e.target.result;
+                pendingImportHistory = null;
+
+                if (isJson) {
+                    const parsed = JSON.parse(text);
+                    if (Array.isArray(parsed)) {
+                        pendingImportHistory = parsed;
+                    } else if (parsed && Array.isArray(parsed.history)) {
+                        pendingImportHistory = parsed.history;
+                    } else {
+                        throw new Error('Le fichier JSON ne contient pas d\'historique valide.');
+                    }
+                } else if (isCsv) {
+                    const parsed = parseCSVHistory(text);
+                    if (parsed.length === 0) {
+                        throw new Error('Aucun enregistrement trouvé dans le fichier CSV.');
+                    }
+                    pendingImportHistory = parsed;
+                }
+
+                if (!pendingImportHistory || pendingImportHistory.length === 0) {
+                    throw new Error('Aucun enregistrement valide trouvé dans le fichier.');
+                }
+
+                openImportDialog(file.name, pendingImportHistory.length);
+            } catch (err) {
+                console.error(err);
+                showToast('Erreur lecture : ' + (err.message || 'Fichier invalide'), 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function openImportDialog(filename, count) {
+        const dialog = document.getElementById('pressoir-import-dialog');
+        const summaryEl = document.getElementById('pressoir-import-summary');
+        const detailsEl = document.getElementById('pressoir-import-details');
+
+        summaryEl.textContent = `Fichier sélectionné : ${filename}`;
+        detailsEl.innerHTML = `
+            <div><strong>📦 ${count} pressurage(s) détecté(s)</strong></div>
+            <div style="margin-top: 6px; font-size: 0.8rem; opacity: 0.85;">
+                Historique actuel : ${history.length} pressurage(s)
+            </div>
+        `;
+
+        dialog.showModal();
+    }
+
+    function closeImportDialog() {
+        const dialog = document.getElementById('pressoir-import-dialog');
+        if (dialog) dialog.close();
+        pendingImportHistory = null;
+        const fileInput = document.getElementById('file-import-pressoir');
+        if (fileInput) fileInput.value = '';
+    }
+
+    function applyImport(mode) {
+        if (!pendingImportHistory || pendingImportHistory.length === 0) return;
+
+        if (mode === 'replace') {
+            history = [...pendingImportHistory];
+        } else if (mode === 'merge') {
+            // Deduplicate against existing by id or date+weight+variety
+            pendingImportHistory.forEach(newItem => {
+                const exists = history.some(item => 
+                    (newItem.id && item.id === newItem.id) || 
+                    (item.date === newItem.date && item.weight === newItem.weight && item.variety === newItem.variety)
+                );
+                if (!exists) {
+                    history.unshift(newItem);
+                }
+            });
+        }
+
+        localStorage.setItem('pressing_history', JSON.stringify(history));
+        syncServer(history);
+        updateHistory();
+        closeImportDialog();
+        showToast(mode === 'replace' ? `✅ Historique remplacé (${history.length} enregistrements)` : `✅ Pressurages fusionnés (${history.length} au total)`, 'success');
+    }
+
+    // ── ATTACH EXPORT / IMPORT LISTENERS ──
+    const btnExportJson = document.getElementById('btn-export-json');
+    if (btnExportJson) btnExportJson.addEventListener('click', exportJSON);
+
+    const btnExportCsv = document.getElementById('btn-export-csv');
+    if (btnExportCsv) btnExportCsv.addEventListener('click', exportCSV);
+
+    const btnImportTrigger = document.getElementById('btn-import-trigger');
+    const fileImportPressoir = document.getElementById('file-import-pressoir');
+    if (btnImportTrigger && fileImportPressoir) {
+        btnImportTrigger.addEventListener('click', () => fileImportPressoir.click());
+        fileImportPressoir.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleImportFile(e.target.files[0]);
+            }
+        });
+    }
+
+    const btnImportCancel = document.getElementById('btn-import-cancel');
+    if (btnImportCancel) btnImportCancel.addEventListener('click', closeImportDialog);
+
+    const btnImportMerge = document.getElementById('btn-import-merge');
+    if (btnImportMerge) btnImportMerge.addEventListener('click', () => applyImport('merge'));
+
+    const btnImportReplace = document.getElementById('btn-import-replace');
+    if (btnImportReplace) btnImportReplace.addEventListener('click', () => applyImport('replace'));
 
     function updateHistory() {
         if (history.length === 0) {
